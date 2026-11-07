@@ -1,54 +1,45 @@
-# AI Procurement Decision-Support System: Backend (Stage 1: Authentication)
+# ADAPTIVE-AI-LOGISTICS-OPERATIONS-INTELLIGENCE-PLATFORM
+For our SE331 capstone project (Team ACE). The system will help schools
+and universities decide what to buy, how much, and when to buy or take random decisions. Right now only the
+login part is finished: organizations can register, users can log in, and
+different roles get different permissions.
 
-FastAPI + SQLAlchemy backend. This stage covers FR1 (organization registration) and FR2 (role-based accounts).
+## What works so far
+- Register an organization (it gets its first admin account).
+- Log in with email and password.
+- The admin can create staff accounts (manager, store officer, finance, department head).
+- Every user only sees data from their own organization.
 
-## Setup
-```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env               # Windows: copy .env.example .env
-python -c "import secrets; print(secrets.token_urlsafe(48))"   # paste the output as SECRET_KEY in .env
-uvicorn app.main:app --reload
-```
-Open http://localhost:8000/docs for the interactive API (Swagger).
-Tables are created automatically on startup. For PostgreSQL, set `DATABASE_URL` in `.env`.
+## How to run it (Windows)
+1. To run it at first we Open the backend folder in VS Code and open a terminal.
+2. To Create the environment: `python -m venv .venv`
+3. To Install the packages: `.venv\Scripts\python.exe -m pip install -r requirements.txt`
+4. To Copy the settings file: `copy .env.example .env`
+5. To Make a secret key with
+   `.venv\Scripts\python.exe -c "import secrets; print(secrets.token_urlsafe(48))"`
+   and paste it after `SECRET_KEY=` in `.env`
+6. To Start the server: `.venv\Scripts\python.exe -m uvicorn app.main:app --reload`
+7. To Open the server http://localhost:8000/docs to try the API
 
-## Run tests
-```bash
-pytest -q
-```
+To run the tests: `.venv\Scripts\python.exe -m pytest -q`
 
 ## Endpoints
-| Method | Path | Access | Purpose |
-|---|---|---|---|
-| POST | /api/auth/register-organization | public | Create organization + first admin (FR1) |
-| POST | /api/auth/login | public | Login (JSON), returns JWT |
-| POST | /api/auth/token | public | Same, form-encoded (Swagger "Authorize") |
-| GET | /api/users/me | any logged-in user | Own profile |
-| POST | /api/users | admin | Create staff account in own organization |
-| GET | /api/users | admin | List users of own organization |
+| Method | Path | Who can use it |
+|---|---|---|
+| POST | /api/auth/register-organization | anyone |
+| POST | /api/auth/login | anyone |
+| GET | /api/users/me | any logged-in user |
+| POST | /api/users | admin only |
+| GET | /api/users | admin only |
 
-## Security decisions (be ready to explain these)
-- Passwords hashed with **bcrypt** (salted, slow); only the hash is stored.
-- **No hardcoded secrets**: `SECRET_KEY` comes from `.env`; app won't start without it.
-- Input validated with **Pydantic** (email format, password strength, name length, role enum).
-- Login returns the **same error** for wrong password and unknown email, with a dummy hash check to equalize timing.
-- JWT carries user id, org id, role and expiry; every request re-loads the user, so deactivated users are blocked.
-- **Data isolation (NFR3)**: staff are always created in the admin's `org_id`; queries filter by `org_id`.
-- Role checks via the reusable `require_roles(...)` dependency.
+## How it is built
+- We saved the passwords in bcrypt hashes, never as plain text.
+- The secret key is only in `.env`, the key is not included in code, and `.env` is not uploaded to GitHub.
+- Every inputs are checked throughly (valid email, strong password, allowed roles).
+- A log in attempt with wrong username or password will error.
+- To protect the confidentiality and integrity one organization cant see the data of another organization.
 
-## Project layout
-```
-app/
-  config.py      settings from environment
-  database.py    engine + session
-  models.py      Organization, User tables (SRS ERD)
-  schemas.py     request/response validation
-  security.py    bcrypt + JWT
-  deps.py        get_current_user, require_roles
-  routers/       auth.py, users.py
-  main.py        app entry point
-tests/           pytest suite (14 tests)
-```
-# ADAPTIVE-AI-LOGISTICS-OPERATIONS-INTELLIGENCE-PLATFORM
+## Team
+- Md Asif Raihan (241-35-340): backend API, database, authentication, budget module.
+- Md Abu Musha Rony (241-35-273): AI models and evaluation.
+- Md Mostahid Islam Riad (241-35-398): frontend, testing, documentation.
