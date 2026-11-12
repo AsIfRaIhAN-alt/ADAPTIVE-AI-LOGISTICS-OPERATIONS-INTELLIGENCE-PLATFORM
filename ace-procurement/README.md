@@ -1,73 +1,151 @@
-# ACE Procurement Intelligence (SE331 Capstone, Team ACE)
+# ADAPTIVE AI LOGISTICS OPERATIONS INTELLIGENCE PLATFORM
 
-AI-assisted procurement planning for educational institutions.
-Stack (as in the SRS): **Django + Django REST Framework + SQLite**, **React (Vite)**, **scikit-learn / NumPy** for the ML.
+**SE331 Capstone Project**
 
-## What the live demo covers
+An adaptive AI-powered platform designed to improve logistics, inventory management, and procurement operations through intelligent data analysis, machine learning, and decision-support capabilities.
 
-| Assessment item | Where it is |
+## ACE Procurement Intelligence Module
+
+ACE Procurement Intelligence is a procurement decision-support module within the ADAPTIVE AI LOGISTICS OPERATIONS INTELLIGENCE PLATFORM.
+
+It is designed to help various types of organizations make smarter purchasing decisions through inventory management, demand forecasting, and procurement recommendations.
+
+## 1. Project Overview
+
+Organizations across different industries regularly purchase resources, equipment, supplies, and other essential items to maintain their daily operations.
+
+Traditional procurement decisions often rely on manual calculations and assumptions, which can lead to overstocking, shortages, unnecessary expenses, and inefficient resource management.
+
+The ACE Procurement Intelligence module aims to address these challenges by combining inventory management with machine learning-based demand forecasting and procurement recommendations.
+
+The system helps organizations determine:
+- What items need to be purchased.
+- How much quantity should be purchased.
+- When an item should be reordered.
+- Which supplier offers the most suitable price.
+
+## 2. Key Features
+
+### Authentication and User Management
+- Organization registration.
+- Secure user login and logout.
+- Role-based access control.
+- Separate permissions for administrators, managers, and store officers.
+- Organization-level data isolation.
+
+### Inventory and Data Management
+- Add and manage inventory items.
+- Register and manage suppliers.
+- Record purchases and consumption.
+- Track available stock quantities.
+- Edit inventory records.
+- Prevent consumption beyond available stock.
+
+### Demand Forecasting
+- Predict future demand using historical consumption data.
+- Compare forecasting models using historical prediction errors.
+- Display forecast results with an estimated error range.
+- Provide a fallback approach when historical data is insufficient.
+
+### Procurement Recommendations
+- Identify potential stock shortages and overstocking.
+- Recommend purchase quantities.
+- Suggest suitable purchasing times.
+- Compare supplier prices.
+- Provide explanations behind procurement recommendations.
+
+## 3. Technology Stack
+
+| Component | Technology |
 |---|---|
-| Authentication: registration, login, validation, secure passwords | `backend/accounts/`, `frontend/src/pages/AuthPage.jsx` |
-| **FR3** Transaction and inventory entry (record and edit purchases, consumption, stock counts) | `backend/inventory/`, `frontend/src/pages/DataEntry.jsx` |
-| **FR9** Demand forecasting with error range (+ **FR14** cold-start fallback) | `backend/intelligence/ml/forecast.py`, `services.py`, `views.py`, `frontend/src/pages/Forecast.jsx` |
-| **FR11** Procurement recommendation (quantity, timing, supplier, reasoning) | `backend/intelligence/ml/recommend.py`, `views.py`, `frontend/src/pages/Recommendations.jsx` |
+| Frontend | React.js |
+| Frontend Development Server | Vite |
+| Backend | Python, Django |
+| API Framework | Django REST Framework |
+| Machine Learning | Scikit-learn |
+| Numerical Processing | NumPy |
+| Database | SQLite |
+| Version Control | Git and GitHub |
 
-Also implemented from the SRS: FR1 (organization registration), FR2 (role-based accounts: admin / manager / store officer), NFR3 (each organization sees only its own data), NFR4 (role-based access), NFR6 (every recommendation shows its reasoning), NFR10 (fallback when history is short).
+## 4. Project Structure
 
-**Not implemented** (say so honestly if asked): FR4 CSV import, FR12/FR13 decision recording and Organizational Memory personalization, FR15/FR16, FR17-FR19, dashboard (FR8).
-
-## Run it
-
-You need Python 3.10+ and Node 18+.
-
-```bash
-# 1. Backend
-cd backend
-python -m venv .venv && source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py makemigrations accounts inventory        # creates the migration files: commit them
-python manage.py migrate
-python manage.py test                                     # runs all backend tests
-python manage.py seed_demo --org "DIU Campus Supershop" \
-    --username demo_admin --email demo@example.com --password '<pick a strong password>' \
-    --store-username demo_store --store-password '<another strong password>'
-python manage.py runserver                                # http://127.0.0.1:8000
-
-# 2. Frontend (second terminal)
-cd frontend
-npm install
-npm run dev                                               # http://localhost:5173
+```text
+ADAPTIVE-AI-LOGISTICS-OPERATIONS-INTELLIGENCE-PLATFORM/
+│
+├── ace-procurement/
+│   ├── backend/
+│   │   ├── accounts/
+│   │   ├── inventory/
+│   │   ├── intelligence/
+│   │   │   └── ml/
+│   │   ├── config/
+│   │   ├── manage.py
+│   │   └── requirements.txt
+│   │
+│   ├── frontend/
+│   │   ├── src/
+│   │   │   ├── pages/
+│   │   │   ├── App.jsx
+│   │   │   ├── api.js
+│   │   │   ├── icons.jsx
+│   │   │   └── styles.css
+│   │   ├── package.json
+│   │   └── vite.config.js
+│   │
+│   ├── .gitignore
+│   └── README.md
+│
+├── app/
+├── tests/
+├── Reports/
+└── README.md
 ```
 
-No password is stored in the code. `SECRET_KEY` is read from `DJANGO_SECRET_KEY`, or generated once into `backend/.secret_key` (git-ignored). Passwords are saved as PBKDF2 hashes.
+## 5. Current Implementation Scope
 
-**Important:** this project was written and checked in a sandbox where Django could not be installed. The ML code (`python -m unittest intelligence.tests.test_ml`) and the React bundle were run there; the Django code was only compile-checked. Run `python manage.py test` first on your machine and fix anything it reports before the demo day.
+The ACE Procurement Intelligence module currently focuses on:
 
-## Demo script (about 8 minutes)
+- Organization registration and authentication.
+- Role-based user management.
+- Inventory and transaction management.
+- Machine learning-based demand forecasting.
+- Procurement decision recommendations.
+- Supplier price comparison.
 
-1. **Registration**: open the app, click *Register organization*, submit empty (validation messages), enter a weak password (rejected), a duplicate username (rejected), then register properly. Mention: password hashed (show `User.password` starts with `pbkdf2_` in the Django admin or shell), org + admin profile created in one transaction.
-2. **Login / logout** with the demo accounts; show a wrong password gives one generic error.
-3. **Roles**: log in as `demo_store`: only the Data Entry tab is visible; calling `/api/recommendations/` returns 403. Log in as `demo_admin` for the rest.
-4. **FR3 Data entry**: add an item, add a supplier, record a purchase, then a consumption larger than stock (rejected: negative stock). Edit a quantity and watch current stock recompute. Show the rows in SQLite (`python manage.py shell` or a DB viewer) as proof of database interaction.
-5. **FR9 Forecast**: pick *A4 Paper Ream* (12 months history: ML model chosen by backtest, error range, chart). Then *Lab Gloves* (4 months: cold-start fallback, low confidence).
-6. **FR11 Recommendations**: shortage / ok / overstock rows, click a row to show reasoning (forecast, stock, cover days, cheapest supplier, price trend). Change a stock count in Data Entry, reload, and show the recommendation changes.
+Additional features and system improvements will be developed as the project progresses.
 
-## Who should own what (agree this in your team)
+## 6. Team Information
 
-The SRS assigns auth/data entry to M1, ML to M2, frontend to M3. Suggested split of this code:
+**Overall Project:** ADAPTIVE AI LOGISTICS OPERATIONS INTELLIGENCE PLATFORM
 
-- **ML owner (M2):** `intelligence/` (`ml/forecast.py`, `ml/recommend.py`, `services.py`, `views.py`, `tests/`), `inventory/management/commands/seed_demo.py`
-- **Backend/auth owner (M1):** `accounts/`, `inventory/` (models, serializers, views, stock.py)
-- **Frontend owner (M3):** `frontend/`
+**Module:** ACE Procurement Intelligence
 
-Each person should **commit their own files from their own account**, in several small commits with real messages (for example "Add monthly aggregation of consumption", "Add rolling backtest to pick the model", "Add recommendation reasoning"). Do not copy the whole project in one commit: the examiners check commit history, and each of you must be able to explain your part line by line.
+**Course:** SE331 — Capstone Project
 
-## Questions an examiner may ask about the ML part
+**Team:** ACE
 
-- Why compare a moving average with a linear trend? *(Small, seasonal-ish monthly data; both are simple and explainable; the backtest chooses with evidence instead of assuming.)*
-- What is a rolling-origin backtest? *(For each month from the middle onwards, predict it using only earlier months, compare to the actual, average the errors. No future data leaks into training.)*
-- How is the error range computed? *(RMSE of the chosen model's backtest errors times 1.28, about an 80% interval if errors are roughly normal.)*
-- Why is the current month excluded from history? *(It is incomplete and would pull the forecast down.)*
-- What happens with little history? *(Fewer than 6 months: simple average of recent months, labelled low confidence: SRS FR14 / NFR10.)*
-- How is the recommended quantity chosen? *(forecast minus current stock, never below 0, as in the SRS paper example 650 - 180 = 470; supplier = lowest current price, ties broken by delivery time; order date = today + stock cover days - delivery days.)*
-- Limits? *(No seasonality model, only about 12 points of data, simulated demo data, no safety stock, personalization (FR13) not built yet.)*
+**Team Members:**
+
+1. **Md Asif Raihan** — Team Lead
+2. **Md Abu Musha Rony** — Team Member
+3. **Md Mostahid Islam Riad** — Team Member
+
+**Department:** Software Engineering
+
+**Institution:** Daffodil International University
+
+## 7. Future Improvements
+
+Potential future developments include:
+
+- CSV-based inventory data import.
+- Recording procurement decisions and actual purchasing outcomes.
+- Organizational memory for improving future recommendations.
+- More advanced demand forecasting models.
+- Supplier performance evaluation.
+- Enhanced reporting and analytics.
+- Natural-language AI assistant for procurement-related queries.
+
+---
+
+*Smarter Logistics. Intelligent Procurement. Data-Driven Decisions.*
